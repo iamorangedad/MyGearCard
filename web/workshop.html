@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>印刷工坊 · MyGearCard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141210'/%3E%3Crect x='14' y='8' width='36' height='48' rx='4' fill='%23e4b15a'/%3E%3Crect x='18' y='12' width='28' height='40' rx='2' fill='%23301818'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css?v=3">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/workshop">
+      <span class="seal" aria-hidden="true">印</span>
+      <span>
+        <strong>印刷工坊</strong>
+        <em>管理员</em>
+      </span>
+    </a>
+    <a class="quiet-link" href="/">用户页面</a>
+  </header>
+
+  <main>
+    <div class="sheet wide">
+      <p class="kicker">本机队列</p>
+      <h1>处理印刷与发货</h1>
+      <p class="hint">这里的订单和用户「我的订单」是同一份数据。把状态从待印刷推进到已发货。服务没有登录，不要把这个地址暴露到公网。</p>
+      <div id="workshop-list" class="tickets"></div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p>标记发货时填写运单号。完成后，用户在「我的订单」里会看到同样的状态。</p>
+  </footer>
+  <div id="toast" class="toast" hidden role="status"></div>
+  <script src="/static/common.js?v=3"></script>
+  <script src="/static/workshop.js?v=3"></script>
+</body>
+</html>

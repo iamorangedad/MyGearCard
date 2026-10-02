@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的订单 · MyGearCard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141210'/%3E%3Crect x='14' y='8' width='36' height='48' rx='4' fill='%23e4b15a'/%3E%3Crect x='18' y='12' width='28' height='40' rx='2' fill='%23301818'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css?v=3">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">
+      <span class="seal" aria-hidden="true">卡</span>
+      <span>
+        <strong>MyGearCard</strong>
+        <em>装备收藏卡工坊</em>
+      </span>
+    </a>
+    <nav class="nav" aria-label="页面">
+      <a href="/">制作卡牌</a>
+      <a href="/orders" class="is-active" aria-current="page">我的订单</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="sheet wide">
+      <p class="kicker">邮寄订单</p>
+      <h1>我的订单</h1>
+      <p class="hint">这里只看进度。印刷和发货在管理员的印刷工坊里处理，两边看的是同一份订单。</p>
+      <div id="orders-list" class="tickets"></div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p>订单保存在这台机器上。发货前不会自动呼叫快递。</p>
+  </footer>
+  <div id="toast" class="toast" hidden role="status"></div>
+  <script src="/static/common.js?v=3"></script>
+  <script src="/static/orders.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>制作卡牌 · MyGearCard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23141210'/%3E%3Crect x='14' y='8' width='36' height='48' rx='4' fill='%23e4b15a'/%3E%3Crect x='18' y='12' width='28' height='40' rx='2' fill='%23301818'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css?v=3">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">
+      <span class="seal" aria-hidden="true">卡</span>
+      <span>
+        <strong>MyGearCard</strong>
+        <em>装备收藏卡工坊</em>
+      </span>
+    </a>
+    <nav class="nav" aria-label="页面">
+      <a href="/" class="is-active" aria-current="page">制作卡牌</a>
+      <a href="/orders">我的订单</a>
+    </nav>
+  </header>
+
+  <main>
+    <section data-view="studio" class="studio-grid">
+      <form class="sheet" id="make-form">
+        <p class="kicker">把桌上的装备做成一张能寄出去的卡</p>
+        <h1>上传照片，生成收藏卡</h1>
+        <ol class="steps">
+          <li>上传</li>
+          <li>出图</li>
+          <li>填写地址下单</li>
+        </ol>
+
+        <div class="drop" id="dropzone" tabindex="0" role="button" aria-label="上传装备照片">
+          <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+          <p id="drop-title">把照片拖到这里，或点击选择</p>
+          <p class="hint">支持 JPG、PNG、WebP，8MB 以内。笔记本、键盘、鼠标、汽车都可以。</p>
+        </div>
+        <p id="upload-name" class="upload-name" hidden></p>
+
+        <div class="samples">
+          <span>没有照片时可以先用示例</span>
+          <button type="button" data-sample="laptop">笔记本</button>
+          <button type="button" data-sample="keyboard">键盘</button>
+          <button type="button" data-sample="car">汽车</button>
+        </div>
+
+        <label class="field">
+          <span>装备名称</span>
+          <input id="item-name" name="name" maxlength="40" placeholder="例如：夜航笔电、HHKB、红色跑车" required>
+        </label>
+
+        <div class="split">
+          <label class="field">
+            <span>种类</span>
+            <select id="category" name="category">
+              <option value="other">自动判断</option>
+              <option value="laptop">笔记本电脑</option>
+              <option value="keyboard">键盘</option>
+              <option value="mouse">鼠标</option>
+              <option value="monitor">显示器</option>
+              <option value="audio">耳机音箱</option>
+              <option value="gpu">显卡</option>
+              <option value="phone">手机</option>
+              <option value="camera">相机</option>
+              <option value="car">座驾</option>
+              <option value="console">游戏机</option>
+            </select>
+          </label>
+          <div class="field">
+            <span>识别照片</span>
+            <button type="button" class="secondary" id="analyze-btn">识别图中的装备</button>
+          </div>
+        </div>
+        <div id="detected" class="chips" hidden></div>
+
+        <label class="field">
+          <span>补充给模型的话（可选）</span>
+          <input id="note" maxlength="160" placeholder="例如：银色机身，夜色，侧前方">
+        </label>
+
+        <fieldset class="choices">
+          <legend>出图方式</legend>
+          <label class="choice">
+            <input type="radio" name="provider" value="local" checked>
+            <span><b>方式 1 · 本地文生图</b><small>调用这台机器或局域网里已经部署的模型</small></span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="provider" value="external">
+            <span><b>方式 2 · 外部 API</b><small>调用云端图像接口，密钥写在部署时的环境变量里</small></span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="provider" value="photo">
+            <span><b>原图排版</b><small>不调用大模型，把照片嵌进卡牌，直接得到印刷文件</small></span>
+          </label>
+        </fieldset>
+        <p id="provider-note" class="hint"></p>
+
+        <button type="submit" class="primary" id="generate-btn">生成收藏卡</button>
+        <p id="gen-status" class="status" role="status"></p>
+      </form>
+
+      <aside class="felt" id="card-stage">
+        <div class="card-shot" id="card-shot">
+          <div class="ghost" id="card-empty">
+            <span>卡面</span>
+            <p>生成之后，这里就是 63×88mm 的印刷文件。</p>
+          </div>
+          <img id="card-image" alt="" hidden>
+        </div>
+        <p id="card-caption" class="caption">还没有卡牌</p>
+        <div class="card-actions">
+          <a id="download" class="secondary linkish" hidden download="MyGearCard.png">下载印刷文件</a>
+          <button type="button" class="stamp-btn" id="order-btn" disabled>填写地址，提交印刷</button>
+        </div>
+        <details id="prompt-details" hidden>
+          <summary>查看绘图提示词</summary>
+          <p id="prompt-text"></p>
+        </details>
+        <div class="recent" id="recent-wrap" hidden>
+          <h2>最近做成的卡</h2>
+          <div id="recent" class="recent-row"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section data-view="checkout" hidden>
+      <form class="sheet narrow" id="order-form">
+        <button type="button" class="back" id="back-studio">返回卡牌</button>
+        <p class="kicker">印刷与邮寄</p>
+        <h1>把这张卡寄出去</h1>
+        <div class="checkout-preview">
+          <img id="checkout-art" alt="">
+          <div>
+            <p id="checkout-name"></p>
+            <p class="hint">成品 63×88mm，300dpi。</p>
+            <label class="field inline">
+              <span>数量</span>
+              <input id="quantity" type="number" min="1" max="20" value="1">
+            </label>
+            <p id="total" class="total"></p>
+          </div>
+        </div>
+
+        <div id="order-fields">
+          <label class="field"><span>收件人</span><input id="recipient" maxlength="30" autocomplete="name" required></label>
+          <label class="field"><span>手机号</span><input id="phone" maxlength="11" inputmode="numeric" autocomplete="tel" required></label>
+          <div class="thirds">
+            <label class="field"><span>省</span><input id="province" maxlength="20" autocomplete="address-level1" required></label>
+            <label class="field"><span>市</span><input id="city" maxlength="20" autocomplete="address-level2" required></label>
+            <label class="field"><span>区 / 县</span><input id="district" maxlength="20" required></label>
+          </div>
+          <label class="field"><span>详细地址</span><input id="address" maxlength="120" autocomplete="street-address" required></label>
+          <label class="field"><span>邮编（可选）</span><input id="postal" maxlength="6" inputmode="numeric" autocomplete="postal-code"></label>
+          <label class="field"><span>备注（可选）</span><input id="order-note" maxlength="200" placeholder="例如：放进硬卡套再寄"></label>
+          <button type="submit" class="danger" id="submit-order">提交订单</button>
+          <p class="hint">订单进入这台机器上的印刷队列。标记发货前，不会自动呼叫快递。</p>
+        </div>
+
+        <div id="order-success" hidden>
+          <p class="kicker">已进入印刷队列</p>
+          <p class="order-no" id="success-id"></p>
+          <p id="success-total"></p>
+          <p id="success-address"></p>
+          <a class="primary" href="/orders">查看我的订单</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>印刷文件即预览图。启用外部 API 时，照片和提示词会发给该服务；本地方式和原图排版不会离开这台机器。</p>
+  </footer>
+  <div id="toast" class="toast" hidden role="status"></div>
+  <script src="/static/common.js?v=3"></script>
+  <script src="/static/studio.js?v=3"></script>
+</body>
+</html>
