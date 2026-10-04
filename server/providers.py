@@ -39,7 +39,7 @@ def _headers(api_key: str) -> dict:
 
 def _error_text(response: httpx.Response) -> str:
     if response.status_code in {401, 403}:
-        return "模型服务拒绝了密钥，请到设置里检查。"
+        return "模型服务拒绝了密钥。请检查部署时填写的密钥。"
     try:
         payload = response.json()
     except json.JSONDecodeError:
