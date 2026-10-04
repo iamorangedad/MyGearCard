@@ -28,7 +28,19 @@
 
 模型没启动时，选 **原图排版**：不调用大模型，把上传的照片嵌进卡框，一样能下单。页面上的「笔记本 / 键盘 / 汽车」是内置示例图。
 
-这台设备内存有限，网页进程本身不加载扩散模型，只去调用你已经部署好的服务。
+这台设备是 Jetson Orin Nano Super，统一内存大约 8GB。网页进程本身不加载扩散模型，只去调用已经部署好的服务。在本机单独跑 Stable Diffusion 的步骤见 [docs/jetson-diffusion.md](docs/jetson-diffusion.md)。
+
+接口调用可以用单元测试核对，不访问真实密钥：
+
+```bash
+python3 -m pytest tests/test_providers.py -q
+```
+
+模型服务启动后，用下面的命令只做连通检查，不会出图：
+
+```bash
+python3 scripts/probe_image_api.py local
+```
 
 ## 订单
 
